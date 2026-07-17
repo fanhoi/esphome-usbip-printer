@@ -1,4 +1,4 @@
-# ESPHome USB/IP Сервер для принтера HP 1010
+# ESPHome USB/IP Сервер для принтера HP 1010 на базе ESP32-S3 в ProxmoxVE
 
 **Форк:** [tiehfood/esphome-usbip-printer](https://github.com/tiehfood/esphome-usbip-printer)
 
@@ -81,7 +81,7 @@ lxc.mount.entry: /dev/bus/usb dev/bus/usb none bind,optional,create=dir
 ```
 
 # Автоматическое переподключение после включения принтера
-## Создаем скрипт:
+## Создаем скрипт на хосте ProxmoxVE:
 ```bash
 nano /usr/local/bin/usbip-printer-watch.sh
 ```
@@ -146,7 +146,7 @@ journalctl -u usbip-printer.service -f
 
 
 
-## **Оригинальная документация:** [tiehfood/esphome-usbip-printer](https://github.com/tiehfood/esphome-usbip-printer)
+## **Оригинальная документация перевод на русский:** [tiehfood/esphome-usbip-printer](https://github.com/tiehfood/esphome-usbip-printer)
 
 USB/IP сервер, работающий на плате Waveshare ESP32-S3-ETH в качестве компонента ESPHome. Он связывает локально подключенное USB-устройство с удаленной Linux-машиной через Ethernet, используя стандартный протокол USB/IP.
 ```
