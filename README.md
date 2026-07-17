@@ -1,4 +1,4 @@
-# ESPHome USB/IP Сервер для принтера
+# ESPHome USB/IP Сервер для принтера HP 1010
 
 **Форк:** [tiehfood/esphome-usbip-printer](https://github.com/tiehfood/esphome-usbip-printer)
 
