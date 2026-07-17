@@ -1,0 +1,114 @@
+esphome:
+  friendly_name: "ESP32-S3-ETH USB/IP"
+  name: usbip-server
+  platformio_options:
+    build_flags:
+      # Enable USB Host mode
+      - -DCONFIG_USB_HOST_CONTROL_TRANSFER_MAX_SIZE=1024
+      - -DCONFIG_USB_HOST_HW_BUFFER_BIAS_BALANCED=1
+
+esp32:
+  board: esp32-s3-devkitc-1
+  variant: esp32s3
+  flash_size: 16MB
+  framework:
+    type: esp-idf
+    sdkconfig_options:
+      # USB Host configuration
+      CONFIG_USB_HOST_CONTROL_TRANSFER_MAX_SIZE: "1024"
+      CONFIG_USB_HOST_HW_BUFFER_BIAS_BALANCED: y
+      CONFIG_USB_HOST_ENABLE_ENUM_FILTER_CALLBACK: y
+      # Explicitly disable PSRAM
+      CONFIG_SPIRAM: n
+
+logger:
+  baud_rate: 115200  # Disable UART logging, use web only
+  level: INFO
+  logs:
+    usbip: INFO
+
+api:
+  reboot_timeout: 0s
+
+ota:
+  - platform: esphome
+
+external_components:
+  - source:
+      type: local
+      path: ./components
+    components: [ usbip ]
+
+web_server:
+  port: 80
+  version: 3
+  local: true
+
+wifi:
+  ssid: "Your WiFi SSID"
+  password: "Your WiFi Password"
+
+  ap:
+    ssid: "USBIP Fallback"
+    password: "12345678"
+
+usbip:
+  port: 3240
+
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      name: "WiFi IP Address"
+    ssid:
+      name: "WiFi Connected SSID"
+    mac_address:
+      name: "WiFi MAC Address"
+  - platform: template
+    name: "USB Device Status"
+    id: usb_device_status
+    update_interval: 1s
+    lambda: |-
+      static std::string last_device_state = "";
+      std::string current_state = "Not Initialized";
+      if (esphome::usbip::g_usbip_component != nullptr) {
+        current_state = esphome::usbip::g_usbip_component->get_device_info();
+      }
+      if (current_state == last_device_state) {
+        return {};
+      }
+      last_device_state = current_state;
+      return {current_state};
+  - platform: template
+    name: "USBIP Client Status"
+    id: usbip_client_status
+    update_interval: 1s
+    lambda: |-
+      static std::string last_client_state = "";
+      std::string current_state = "Not Initialized";
+      if (esphome::usbip::g_usbip_component != nullptr) {
+        current_state = esphome::usbip::g_usbip_component->get_client_status();
+      }
+      if (current_state == last_client_state) {
+        return {};
+      }
+      last_client_state = current_state;
+      return {current_state};
+
+sensor:
+  - platform: uptime
+    name: "Uptime"
+    update_interval: 60s
+    icon: mdi:clock-outline
+    entity_category: "diagnostic"
+  - platform: internal_temperature
+    name: "Internal Temperature"
+    entity_category: "diagnostic"
+  - platform: wifi_signal
+    name: "WiFi Signal"
+    update_interval: 60s
+    entity_category: "diagnostic"
+
+switch:
+  - platform: restart
+    name: "Restart Device"
+    entity_category: "diagnostic"
